@@ -6,8 +6,7 @@ This module contains the three LLM-facing functions used by the application:
 - :func:`generate_answer` — The primary RAG answer function.  Takes a user
   question and retrieved context chunks, calls GPT-4.1, and returns a cited
   answer.
-- :func:`summarize_for_speech` — Converts a written answer into a short,
-  natural spoken paragraph suitable for text-to-speech synthesis.
+
 - :func:`generate_document_summary` — Generates a comprehensive summary of
   an entire document from all its indexed chunks.
 
@@ -116,74 +115,6 @@ def generate_answer(
 
     english_answer = response.choices[0].message.content
     return translate_text(english_answer, language)
-
-
-def summarize_for_speech(answer: str, language: str = "English") -> str:
-    """Convert a written answer into a short, natural spoken paragraph.
-
-    Written document answers often contain markdown formatting (bullet points,
-    citation markers like ``[Source 1]``, bold text, etc.) that sounds awkward
-    when read aloud by a TTS engine.  This function uses GPT-4.1 to rewrite
-    the answer as a single, polished spoken paragraph of 2–4 sentences with
-    all formatting removed.
-
-    The system prompt enforces strict rules:
-
-    * Exactly **one paragraph** of 2–4 flowing sentences.
-    * **No lists**, bullet points, dashes, colons at line start, or citation
-      markers (``[Source N]``).
-    * **No abbreviations** without spelling them out.
-    * Sentences are connected with transitional words for natural flow.
-    * Does **not** start with filler phrases like "Sure", "Here is", or
-      "In summary".
-
-    The condensed English paragraph is then translated to the target language
-    by :func:`~services.translation.translate_text`.
-
-    Args:
-        answer (str): The full written answer produced by :func:`generate_answer`
-            (may contain markdown, citations, and lists).
-        language (str): Target output language display name.  Defaults to
-            ``"English"`` (no translation performed).
-
-    Returns:
-        str: A single spoken paragraph in the target language, optimised for
-            natural text-to-speech delivery.
-
-    Raises:
-        openai.AuthenticationError: If the API key is invalid.
-        openai.RateLimitError: If the GPT deployment quota is exceeded.
-    """
-    client = _get_client()
-
-    response = client.chat.completions.create(
-        model=AZURE_OPENAI_DEPLOYMENT,
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "You convert a written answer into a short script for a voice assistant "
-                    "to read aloud. Rules:\n"
-                    "- Write exactly ONE paragraph with 2-4 flowing sentences.\n"
-                    "- Use simple, natural spoken English - as if explaining to a friend.\n"
-                    "- NEVER use bullet points, numbered lists, citation markers like "
-                    "[Source 1], asterisks, dashes, colons at the start of a line, or any formatting.\n"
-                    "- NEVER use abbreviations or acronyms without spelling them out.\n"
-                    "- Connect sentences with transitional words so the paragraph reads as one continuous thought.\n"
-                    "- Do NOT start with phrases like 'Sure', 'Here is', or 'In summary'."
-                ),
-            },
-            {
-                "role": "user",
-                "content": f"Convert this answer into a spoken paragraph:\n\n{answer}",
-            },
-        ],
-        temperature=0.4,
-        max_tokens=300,
-    )
-
-    english_summary = response.choices[0].message.content.strip()
-    return translate_text(english_summary, language)
 
 
 def generate_document_summary(

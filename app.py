@@ -13,16 +13,14 @@ The UI is divided into two areas:
 **Sidebar (left panel)**
     - Configuration health check (missing Azure credentials are displayed here
       and the app is halted).
-    - Service info expander (shows index name, model names, and speech region).
-    - Speech enable/disable toggle.
+    - Service info expander (shows index name, model names).
     - Output language selector (English / Hindi / French / Telugu).
     - List of documents indexed in the current session.
     - PDF upload & indexing widget.
 
 **Main area (center)**
-    - Chat tab: multi-turn conversation with the indexed documents, supporting
-      both text and voice input.  Each assistant reply shows cited sources and
-      optional audio playback.
+    - Chat tab: multi-turn conversation with the indexed documents.  Each
+      assistant reply shows cited sources.
     - Summary tab: one-click whole-document summary for any indexed document,
       with optional language translation.
 
@@ -38,18 +36,13 @@ RAG pipeline (triggered on user question)
 1. ``hybrid_search``         — BM25 + HNSW vector retrieval (top 5 chunks).
 2. ``generate_answer``       — GPT-4.1 synthesis with source citations.
 3. ``translate_text``        — Optional Azure Translator post-processing.
-4. ``summarize_for_speech``  + ``synthesize_speech`` — Optional TTS playback.
 """
-
-import hashlib
 
 import streamlit as st
 
 from config import (
     AZURE_OPENAI_DEPLOYMENT,
     AZURE_OPENAI_EMBEDDING_DEPLOYMENT,
-    AZURE_SPEECH_KEY,
-    AZURE_SPEECH_REGION,
     AZURE_TRANSLATOR_KEY,
     DOC_INTELLIGENCE_ENDPOINT,
     DOC_INTELLIGENCE_KEY,
@@ -62,10 +55,10 @@ from config import (
 )
 from services.chunker import chunk_pages
 from services.document_intelligence import analyze_pdf
-from services.llm import generate_answer, generate_document_summary, summarize_for_speech
+from services.llm import generate_answer, generate_document_summary
 from services.search import hybrid_search, get_indexed_document_names, fetch_chunks_by_document
 from services.search_index import ensure_search_index, upload_chunks_to_index
-from services.speech import SPEECH_SDK_AVAILABLE, synthesize_speech, transcribe_audio
+
 
 
 def main():
@@ -80,20 +73,12 @@ def main():
        keys are present before any widget attempts to read them.  Streamlit's
        session state persists for the lifetime of the browser tab:
 
-       - ``messages``        — Chat history list (role + content + sources + audio).
+       - ``messages``        — Chat history list (role + content + sources).
        - ``indexed_docs``    — Metadata for documents indexed this session.
-       - ``voice_query``     — Transcribed speech query awaiting processing.
-       - ``last_audio_hash`` — MD5 of the last audio recording; prevents the
-         same recording from being transcribed twice on Streamlit reruns.
        - ``output_language`` — Currently selected output language.
        - ``document_summary`` — Cached summary for the selected document.
 
-    3. **Speech availability detection** — Determines whether voice features
-       should be shown based on SDK availability and credential presence.
-
-    4. **Sidebar rendering** — Delegates to helper functions for each sidebar
-       section (config check, service info, speech toggle, language selector,
-       indexed doc list, upload widget).
+    3. **Speech availability detection** — REMOVED (voice features no longer available).
 
     5. **Main content rendering** — Renders the chat tab (history + input +
        RAG pipeline) and the summary tab.
@@ -105,22 +90,11 @@ def main():
         st.session_state.messages = []
     if "indexed_docs" not in st.session_state:
         st.session_state.indexed_docs = []
-    if "voice_query" not in st.session_state:
-        st.session_state.voice_query = None
-    if "last_audio_hash" not in st.session_state:
-        st.session_state.last_audio_hash = None
     if "output_language" not in st.session_state:
         st.session_state.output_language = "English"
     if "document_summary" not in st.session_state:
         st.session_state.document_summary = None
-    if "podcast_audio" not in st.session_state:
-        st.session_state.podcast_audio = None
-    if "podcast_timing" not in st.session_state:
-        st.session_state.podcast_timing = None
-    if "podcast_segments" not in st.session_state:
-        st.session_state.podcast_segments = None
 
-    speech_enabled = SPEECH_SDK_AVAILABLE and bool(AZURE_SPEECH_KEY and AZURE_SPEECH_REGION)
 
     # ================================================================
     # SIDEBAR
@@ -134,11 +108,6 @@ def main():
             st.markdown(f"**Index:** `{SEARCH_INDEX_NAME}`")
             st.markdown(f"**LLM:** `{AZURE_OPENAI_DEPLOYMENT}`")
             st.markdown(f"**Embeddings:** `{AZURE_OPENAI_EMBEDDING_DEPLOYMENT}`")
-            if speech_enabled:
-                st.markdown(f"**Speech region:** `{AZURE_SPEECH_REGION}`")
-
-        _render_speech_toggle(speech_enabled)
-        _render_language_selector()
 
         st.divider()
         _render_indexed_docs()
@@ -153,11 +122,7 @@ def main():
 
     if st.session_state.indexed_docs:
         doc_names = ", ".join(d["name"] for d in st.session_state.indexed_docs)
-        st.caption(
-            f"Chatting with: **{doc_names}** · Type or speak your question below."
-            if speech_enabled
-            else f"Chatting with: **{doc_names}**"
-        )
+        st.caption(f"Chatting with: **{doc_names}")
     else:
         st.caption(
             "Ask questions about documents already in the index. "
@@ -169,13 +134,9 @@ def main():
     with tab_chat:
         _render_chat_history()
 
-        active_query = _collect_voice_query(speech_enabled)
         text_input = st.chat_input("Ask a question about your documents…")
         if text_input:
-            active_query = text_input
-
-        if active_query:
-            _process_query(active_query, speech_enabled)
+            _process_query(text_input)
 
     with tab_summary:
         try:
@@ -245,74 +206,6 @@ def _render_config_check() -> None:
         for name in missing:
             st.code(name)
         st.stop()
-
-
-def _render_speech_toggle(speech_enabled: bool) -> None:
-    """Render the text-to-speech toggle or a disabled-reason caption in the sidebar.
-
-    When all speech prerequisites are met (SDK installed + credentials present),
-    renders a Streamlit ``st.toggle`` widget that lets users enable or disable
-    "Read answers aloud" live text-to-speech playback.  The widget state is
-    stored in ``st.session_state.tts_enabled``.
-
-    When speech is not available, renders an informational caption instead of
-    a toggle, listing the specific reasons why speech is disabled (missing SDK,
-    missing API key, missing region).  This gives users clear guidance on what
-    to install or configure to enable the feature.
-
-    Args:
-        speech_enabled (bool): Pre-computed flag indicating whether the Speech
-            SDK is installed AND both ``AZURE_SPEECH_KEY`` and
-            ``AZURE_SPEECH_REGION`` are configured.  Passed in from
-            :func:`main` to avoid repeating the same checks.
-    """
-    if speech_enabled:
-        st.toggle("🔊 Read answers aloud", value=True, key="tts_enabled")
-    else:
-        reasons = []
-        if not SPEECH_SDK_AVAILABLE:
-            reasons.append("SDK not installed")
-        if not AZURE_SPEECH_KEY:
-            reasons.append("AZURE_SPEECH_KEY missing")
-        if not AZURE_SPEECH_REGION:
-            reasons.append("AZURE_SPEECH_REGION missing")
-        st.caption("🎤 Voice disabled — " + " · ".join(reasons))
-
-
-def _render_language_selector() -> None:
-    """Render the output language dropdown and Translator status in the sidebar.
-
-    Displays a ``st.selectbox`` populated with the language display names from
-    ``LANGUAGE_CONFIG`` (English, Hindi, French, Telugu).  The selected value
-    is persisted in ``st.session_state.output_language`` and read by
-    :func:`_process_query`, :func:`_generate_summary`, and the TTS pipeline.
-
-    If a non-English language is selected, also shows a status indicator:
-
-    * Green checkmark (✅) with "Azure Translator connected" if
-      ``AZURE_TRANSLATOR_KEY`` is set.
-    * Orange warning (⚠️) explaining the key is missing and answers will
-      remain in English if it is not.
-
-    This lets users immediately understand whether their language selection
-    will actually be applied before sending a question.
-    """
-    st.subheader("🌐 Output Language")
-    st.selectbox(
-        "AI answers and speech in:",
-        options=list(LANGUAGE_CONFIG.keys()),
-        key="output_language",
-        help="Answers and spoken summaries are translated via Azure Translator.",
-    )
-    selected = st.session_state.get("output_language", "English")
-    if selected != "English":
-        if AZURE_TRANSLATOR_KEY:
-            st.caption("✅ Azure Translator connected")
-        else:
-            st.warning(
-                "⚠️ AZURE_TRANSLATOR_KEY not set — answers will remain in English.",
-                icon="⚠️",
-            )
 
 
 def _render_indexed_docs() -> None:
@@ -498,8 +391,6 @@ def _render_chat_history() -> None:
 
     - A collapsible "Sources & Citations" expander listing each source chunk's
       page number, RRF relevance score, and the first 300 characters of content.
-    - An audio player (``st.audio``) if a WAV audio stream was generated for
-      that response (i.e., when TTS was enabled).
 
     This function is called at the top of the chat tab on every Streamlit
     rerun so the full history is always visible when the page refreshes after
@@ -516,81 +407,13 @@ def _render_chat_history() -> None:
                         )
                         st.text(src["content"][:300])
                         st.divider()
-            if msg["role"] == "assistant" and msg.get("audio"):
-                st.audio(msg["audio"], format="audio/wav")
 
 
-def _collect_voice_query(speech_enabled: bool) -> str | None:
-    """Render the audio recorder widget and return a transcribed query if new audio is available.
-
-    Displays a ``st.audio_input`` recorder widget when speech is enabled.  To
-    prevent the same recording from being re-transcribed on every Streamlit
-    rerun (Streamlit re-executes the entire script on each interaction), the
-    function computes an **MD5 hash** of the raw audio bytes and compares it
-    to ``st.session_state.last_audio_hash``.  Only if the hash is new does it
-    proceed to transcription.
-
-    Transcription is delegated to :func:`~services.speech.transcribe_audio`.
-    The transcribed text is displayed to the user in an info box ("Heard: ..."),
-    stored temporarily in ``st.session_state.voice_query``, cleared from
-    session state before returning, and returned as the function result so it
-    can be processed by :func:`_process_query`.
-
-    Args:
-        speech_enabled (bool): Whether voice input is available (SDK installed
-            and ``AZURE_SPEECH_KEY`` / ``AZURE_SPEECH_REGION`` are configured).
-            If ``False``, the function returns ``None`` immediately without
-            rendering any widget.
-
-    Returns:
-        str | None: The transcribed question as a plain string if new audio
-            was recorded and transcribed successfully.  Returns ``None`` if
-            speech is disabled, no audio has been recorded, the same audio
-            was already processed, or transcription yielded an empty result.
-    """
-    if not speech_enabled:
-        return None
-
-    st.markdown(
-        "**🎤 Voice Input** — Click the microphone, speak, then click stop:",
-        help="Your speech will be transcribed and used as the query.",
-    )
-    audio_input = st.audio_input(
-        "Record your question", key="audio_recorder", label_visibility="collapsed"
-    )
-    if audio_input is None:
-        return None
-
-    audio_bytes = audio_input.read()
-    audio_hash = hashlib.md5(audio_bytes).hexdigest()
-    if audio_hash == st.session_state.last_audio_hash:
-        return None
-
-    st.session_state.last_audio_hash = audio_hash
-    with st.spinner("🎧 Transcribing your speech…"):
-        try:
-            transcribed = transcribe_audio(audio_bytes)
-            if transcribed:
-                st.session_state.voice_query = transcribed
-                st.info(f"🗣️ Heard: **{transcribed}**")
-            else:
-                st.warning("Could not understand the audio. Please try again.")
-        except Exception as e:
-            st.error(f"Speech transcription error: {e}")
-
-    if st.session_state.get("voice_query"):
-        query = st.session_state.voice_query
-        st.session_state.voice_query = None
-        return query
-    return None
-
-
-def _process_query(query: str, speech_enabled: bool) -> None:
+def _process_query(query: str) -> None:
     """Execute the full RAG pipeline for a user query and stream the response to the UI.
 
     This is the core request-handling function.  It is called whenever a new
-    query is available — whether typed in the chat input or transcribed from
-    voice.
+    query is available from the chat input.
 
     Pipeline steps:
         1. **Append user message** — Adds the query to
@@ -604,25 +427,16 @@ def _process_query(query: str, speech_enabled: bool) -> None:
         4. **Source display** — Renders a collapsible "Sources & Citations"
            expander showing each source chunk's page number, score, and a
            300-character preview.
-        5. **TTS (optional)** — If speech is enabled and the TTS toggle is on,
-           calls :func:`~services.llm.summarize_for_speech` followed by
-           :func:`~services.speech.synthesize_speech` to generate a WAV audio
-           stream, which is auto-played via ``st.audio``.
-        6. **Append assistant message** — Stores the answer, sources list, and
-           audio data in ``st.session_state.messages`` so they persist across
-           reruns and are rendered by :func:`_render_chat_history`.
+        5. **Append assistant message** — Stores the answer and sources list
+           in ``st.session_state.messages`` so they persist across reruns and
+           are rendered by :func:`_render_chat_history`.
 
     Error handling:
         - If ``hybrid_search`` raises an exception, the error message is shown
           as the assistant reply and sources are cleared.
-        - TTS errors show a warning (``st.warning``) but do not affect the
-          text answer.
 
     Args:
-        query (str): The user's question — either from ``st.chat_input`` or
-            from :func:`_collect_voice_query`.
-        speech_enabled (bool): Whether voice output should be attempted after
-            the answer is generated.
+        query (str): The user's question from ``st.chat_input``.
     """
     st.session_state.messages.append({"role": "user", "content": query})
     with st.chat_message("user"):
@@ -658,18 +472,8 @@ def _process_query(query: str, speech_enabled: bool) -> None:
                     st.text(src["content"][:300])
                     st.divider()
 
-        audio_data = None
-        if speech_enabled and st.session_state.get("tts_enabled", True):
-            with st.spinner("🔊 Generating spoken summary…"):
-                try:
-                    speech_summary = summarize_for_speech(answer, language=language)
-                    audio_data = synthesize_speech(speech_summary, language=language)
-                    st.audio(audio_data, format="audio/wav", autoplay=True)
-                except Exception as e:
-                    st.warning(f"Text-to-speech unavailable: {e}")
-
     st.session_state.messages.append(
-        {"role": "assistant", "content": answer, "sources": sources, "audio": audio_data}
+        {"role": "assistant", "content": answer, "sources": sources}
     )
 
 if __name__ == "__main__":

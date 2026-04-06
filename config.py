@@ -12,7 +12,6 @@ Required variables (app will refuse to start if these are missing):
     AZURE_OPENAI_ENDPOINT / KEY
 
 Optional variables (features are gracefully disabled when absent):
-    AZURE_SPEECH_KEY / REGION  — enables voice input and text-to-speech
     AZURE_TRANSLATOR_KEY / REGION — enables multi-language output
 """
 
@@ -38,10 +37,6 @@ AZURE_OPENAI_EMBEDDING_DEPLOYMENT = os.getenv(
     "AZURE_OPENAI_EMBEDDING_DEPLOYMENT", "text-embedding-ada-002"
 )
 AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2025-03-01-preview")
-
-# --------------- Azure Speech ---------------
-AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY", "")
-AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION", "")
 
 # --------------- Azure Translator ---------------
 AZURE_TRANSLATOR_KEY = os.getenv("AZURE_TRANSLATOR_KEY", "")

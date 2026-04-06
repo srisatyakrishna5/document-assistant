@@ -69,7 +69,7 @@ A resource group keeps all the services for this project organised together.
 
 ## Part 3 — Creating Azure Services
 
-You need to create **four Azure services** (one of which is a Microsoft Foundry project with model deployments).  Follow the steps below for each one.
+You need to create **three Azure services/resources** for this lab: Azure Document Intelligence, Azure AI Search, and a Microsoft Foundry project with model deployments.
 
 ---
 
@@ -194,10 +194,10 @@ The model playground lets you chat with your deployed model and experiment with 
 #### Step 3.3f — Deploy the Embedding Model
 
 1. Navigate back to the model catalog: click **"Discover"** in the upper-right navigation, then **"Models"** in the left pane.
-2. Search for **"text-embedding-ada-002"** and click it.
+2. Search for **"text-embedding-3-large"** and click it.
 3. Click **"Deploy"** → **"Custom settings"**.
 4. Fill in:
-   - **Deployment name:** Type exactly `text-embedding-ada-002`
+   - **Deployment name:** Type exactly `text-embedding-3-large`
    - **Deployment type:** Select **"Standard"**
 5. Click **"Deploy"**.
 6. Once the deployment completes, both models are ready.
@@ -207,7 +207,7 @@ The model playground lets you chat with your deployed model and experiment with 
 1. In the upper-right navigation, click **"Build"**, then select **"Models"** in the left pane to see all deployments on your Foundry resource.
 2. Confirm you see two deployments:
    - `gpt-4.1` — Status: **Succeeded**
-   - `text-embedding-ada-002` — Status: **Succeeded**
+   - `text-embedding-3-large` — Status: **Succeeded**
 3. If either shows a failure, click on it to see the error.  Common issues:
    - **Insufficient quota:** Try a different region or select a lower tokens-per-minute rate limit.  You can request more quota via the [quota increase form](https://aka.ms/oai/stuquotarequest).
    - **Model not available in region:** Go back to Step 3.3b and create a new project in **East US** or **East US 2**.
@@ -249,46 +249,6 @@ The playground provides sample code that a client application can use to chat wi
 > **Note:** The **Completions** API is the broadly used programmatic syntax.  The **Responses** API is a newer syntax that offers greater flexibility for building apps that converse with both standalone models and agents.  Both are supported.  Our application (`app.py`) uses the Chat Completions API.
 
 4. Switch back to the **Chat** tab when you have finished reviewing the code.
-
----
-
-### Step 3.4 — Create Azure Speech Service (Optional)
-
-This service enables voice input and spoken answers.  Skip this step if you only want text-based chat.
-
-1. In the search bar, type **"Speech"** and click **"Speech services"**.
-2. Click **"+ Create"**.
-3. Fill in:
-   - **Subscription:** Your subscription
-   - **Resource group:** `document-advisor-rg`
-   - **Region:** Same region
-   - **Name:** Type a unique name, e.g., `speech-yourname`
-   - **Pricing tier:** **Free F0**
-4. Click **"Review + Create"**, then **"Create"**.
-5. Go to the resource → **"Keys and Endpoint"**.
-6. **Copy and save:**
-   - **KEY 1**
-   - **Location/Region** (e.g., `eastus`)
-
----
-
-### Step 3.5 — Create Azure Translator (Optional)
-
-This service translates answers into Hindi, French, or Telugu.  Skip this step if you only need English output.
-
-1. In the search bar, type **"Translator"** and click **"Translator"**.
-2. Click **"+ Create"**.
-3. Fill in:
-   - **Subscription:** Your subscription
-   - **Resource group:** `document-advisor-rg`
-   - **Region:** Select **"Global"**
-   - **Name:** Type a unique name, e.g., `translator-yourname`
-   - **Pricing tier:** **Free F0**
-4. Click **"Review + Create"**, then **"Create"**.
-5. Go to the resource → **"Keys and Endpoint"**.
-6. **Copy and save:**
-   - **KEY 1**
-   - **Text Translation** → **Region** (e.g., `global`)
 
 ---
 
@@ -453,23 +413,14 @@ AZURE_SEARCH_INDEX_NAME=rag-documents
 AZURE_OPENAI_ENDPOINT=https://YOUR-RESOURCE-NAME.openai.azure.com/
 AZURE_OPENAI_KEY=PASTE_YOUR_FOUNDRY_API_KEY_HERE
 AZURE_OPENAI_DEPLOYMENT=gpt-4.1
-AZURE_OPENAI_EMBEDDING_DEPLOYMENT=text-embedding-ada-002
+AZURE_OPENAI_EMBEDDING_DEPLOYMENT=text-embedding-3-large
 AZURE_OPENAI_API_VERSION=2025-03-01-preview
-
-# Azure Speech — optional, delete these lines if not using voice features
-AZURE_SPEECH_KEY=PASTE_YOUR_SPEECH_KEY_HERE
-AZURE_SPEECH_REGION=eastus
-
-# Azure Translator — optional, delete these lines if not using translation
-AZURE_TRANSLATOR_KEY=PASTE_YOUR_TRANSLATOR_KEY_HERE
-AZURE_TRANSLATOR_REGION=global
 ```
 
 > **Tips:**
 > - Do not add quotes around the values.
 > - Do not add spaces around the `=` sign.
 > - Make sure there are no trailing spaces at the end of each line.
-> - If you skipped creating the Speech or Translator services, simply delete or comment out those lines (put a `#` at the start of the line).
 
 ### Step 7.3 — Verify the .env File
 
@@ -511,98 +462,7 @@ The app will load and display the chat interface.
 
 ## Part 9 — Using the Application (Step-by-Step Walkthrough)
 
-### Exercise 1: Create an AI Agent in Microsoft Foundry
-
-In this exercise you will create a simple **prompt-based agent** inside the same Foundry project you set up in Step 3.3.  The agent will use your GPT-4.1 deployment to answer questions conversationally — no code required.
-
-#### What Is a Foundry Agent?
-
-An agent is an AI-powered assistant hosted inside your Foundry project.  There are two types:
-
-| Type | Description |
-|------|-------------|
-| **Prompt agent** | Uses a model deployment + system instructions — no custom code needed.  Great for chatbots, Q&A assistants, and guided workflows. |
-| **Hosted agent** | Runs your own container with custom code (Python / C#).  Needed for advanced scenarios like tool calling, multi-step workflows, or integrations. |
-
-In this exercise you will create a **prompt agent** so you can experience the end-to-end flow without writing any code.
-
-#### Step 1a — Open Your Foundry Project
-
-1. Go to **https://ai.azure.com** and sign in.  Make sure the **New Foundry** toggle is on.
-2. In the upper-left corner, click the **project name** dropdown and select your project (e.g., `document-advisor-project`).
-
-#### Step 1b — Navigate to the Agents Playground
-
-1. In the upper-right navigation, click **"Build"**, then select **"Agents"** in the left pane.
-2. You will see the **Agent setup** page (the Agents Playground).
-
-#### Step 1c — Create a New Agent
-
-1. Click **"+ New agent"** (or **"+ Create"**).
-2. You will see a configuration panel on the right side.  Fill in the following:
-
-   **Name:**
-   ```
-   document-qa-agent
-   ```
-
-   **Instructions (system prompt):** Copy and paste the following into the **Instructions** text box:
-   ```
-   You are a helpful document question-answering assistant.
-   When a user asks a question, provide a clear, concise, and accurate answer.
-   If you are unsure, say so honestly rather than guessing.
-   Always be polite and professional.
-   ```
-
-   **Model deployment:** Select your **gpt-4.1** deployment from the dropdown.  (This is the deployment you created in Step 3.3d.)
-
-3. Leave all other settings at their defaults for now.
-
-#### Step 1d — Test the Agent in the Playground
-
-1. On the same page you will see a **chat panel** (usually on the right or bottom).
-2. Type a test message, for example:
-   ```
-   Hello! What can you help me with?
-   ```
-3. Press **Enter** (or click the send button).
-4. The agent will respond using the instructions you provided.  You should see a polite, on-topic reply.
-5. Try a few more questions to see how the agent behaves:
-   - *"Explain quantum computing in simple terms."*
-   - *"Summarise the benefits of cloud computing."*
-   - *"What is retrieval-augmented generation?"*
-
-#### Step 1e — Customise the Agent (Optional Experiments)
-
-Try tweaking the agent to see how the behaviour changes:
-
-- **Change the instructions** — Edit the system prompt to give the agent a different personality.  For example, add `"Always respond in bullet points."` or `"You are a pirate. Answer everything in pirate speak."` Then send a message and observe the difference.
-- **Adjust the temperature** — If you see a **Temperature** slider, move it toward 0 for more deterministic answers or toward 1 for more creative responses.
-- **Add knowledge (optional)** — Some Foundry projects allow you to attach files or an Azure AI Search index as a knowledge source.  If you see an **"Add data source"** or **"Knowledge"** option, try connecting the same AI Search index (`rag-documents`) you created in Step 3.2 — the agent will then answer questions grounded in your uploaded documents.
-
-#### Step 1f — Note the Agent Details
-
-After creating the agent, note the following for future reference:
-
-1. **Agent name:** `document-qa-agent`
-2. **Agent ID:** Shown on the agent overview page (a string like `asst_abc123...`).
-3. **Project endpoint:** The same endpoint you saved in Step 3.3c.
-
-> **Why this matters:** If you later want to call the agent programmatically (from Python or another app), you will need the project endpoint and agent name/ID.  The Foundry Python SDK (`azure-ai-projects`) lets you invoke agents from code — see the [Microsoft Foundry documentation](https://learn.microsoft.com/azure/foundry/agents/overview) for details.
-
-#### Summary
-
-In this exercise you:
-- Created a prompt-based agent inside your Foundry project
-- Gave it custom instructions (a system prompt)
-- Tested it interactively in the Agents Playground
-- Explored optional customisations like personality changes and knowledge grounding
-
-This is the simplest way to create an agent in Foundry.  For production scenarios that require tool calling, code execution, or multi-agent orchestration, you would create a **hosted agent** using a framework like Microsoft Agent Framework — but that is beyond the scope of this introductory lab.
-
----
-
-### Exercise 2: Upload Your First Document
+### Exercise 1: Upload Your First Document
 
 1. On the left side of the screen, you will see the **Document Manager** panel.
 2. Scroll down to "➕ Upload New Document".
@@ -619,7 +479,7 @@ This is the simplest way to create an agent in Foundry.  For production scenario
 6. You should see a green banner: **"🎉 [Your filename] indexed successfully!"**
 7. The document name appears in the **"📚 Indexed Documents"** section of the sidebar.
 
-### Exercise 3: Ask Your First Question
+### Exercise 2: Ask Your First Question
 
 1. Click in the text box at the bottom that says **"Ask a question about your documents…"**
 2. Type a question about the document you uploaded and press Enter.  For example:
@@ -630,175 +490,13 @@ This is the simplest way to create an agent in Foundry.  For production scenario
 4. The answer will appear, followed by a **"📚 Sources & Citations"** section.
 5. Click "Sources & Citations" to expand it — you will see which pages the answer was taken from and the exact text the AI used.
 
-### Exercise 4: Generate a Document Summary
+### Exercise 3: Generate a Document Summary
 
 1. Click the **"📝 Summary"** tab (next to the 💬 Chat tab, at the top of the main area).
 2. Make sure your uploaded document is selected in the dropdown.
 3. Click **"📝 Generate Summary"**.
 4. Wait 10–30 seconds (summaries take longer because the full document is processed).
 5. A structured summary with sections and page references will appear.
-
-### Exercise 5: Generate the Podcast Feature Using GitHub Copilot
-
-In this exercise you will **use AI to write code**.  Instead of coding the podcast feature by hand, you will give GitHub Copilot a detailed prompt and let it generate the entire implementation for you.  You can use **either** the GitHub Copilot extension in VS Code **or** the GitHub Copilot CLI — both approaches are covered below.
-
-#### What You Will Build
-
-The podcast feature adds a **🎙️ Podcasts** tab to the application.  When a user selects an indexed document and clicks "Generate Podcast", the app:
-
-1. Fetches the document content from Azure AI Search.
-2. Sends it to Azure OpenAI, which writes a natural, conversational podcast script (multiple segments).
-3. Synthesises the script into WAV audio using Azure Speech SDK, capturing word-level timing data.
-4. Plays the audio in the browser with a synchronised transcript that highlights each word as it is spoken.
-
-The prompt you will use tells Copilot exactly what functions to create, which existing helpers to reuse, and how the UI should look — so you do not need to know the details yourself.
-
-#### Option A — Using the GitHub Copilot Extension in VS Code
-
-> **Prerequisite:** You need the **GitHub Copilot** and **GitHub Copilot Chat** extensions installed in VS Code, and an active GitHub Copilot subscription.
-
-##### Step 5a-1 — Open the Project in VS Code
-
-1. Open VS Code.
-2. Click **File → Open Folder** and select the `document-advisor` project folder.
-3. Make sure you can see the file explorer on the left with files like `app.py`, `config.py`, and the `services/` folder.
-
-##### Step 5a-2 — Open the Copilot Chat Panel
-
-1. Click the **GitHub Copilot Chat icon** in the left sidebar (it looks like a speech bubble with the Copilot logo).
-   - Alternatively, press **Ctrl+Shift+I** (Windows/Linux) or **Cmd+Shift+I** (macOS).
-2. The Copilot Chat panel will appear.
-
-##### Step 5a-3 — Select Agent Mode
-
-1. At the top of the Copilot Chat panel, look for the **mode selector** dropdown (it may say "Ask" or "Edit").
-2. Click it and select **"Agent"** mode.
-   > Agent mode allows Copilot to make changes across multiple files and run terminal commands — which is exactly what you need for this exercise.
-
-##### Step 5a-4 — Paste the Prompt
-
-1. Open the file **`docs/podcast-generation-prompt.md`** in the project.
-2. Find the large text block inside the code fence (between the ` ```text ` and ` ``` ` markers).
-3. **Select and copy** the entire prompt text (from "I want to add a Podcast feature…" to the very end).
-4. Go back to the Copilot Chat panel and **paste** the prompt into the chat input box.
-5. Press **Enter** to send it.
-
-##### Step 5a-5 — Review and Apply the Generated Code
-
-1. Copilot will generate code for **three files**:
-   - `services/llm.py` — a new `generate_podcast_script()` function
-   - `services/speech.py` — new `synthesize_podcast()` and `_assign_segments()` functions
-   - `app.py` — session state initialisation, the new Podcasts tab, and three helper functions
-2. For each file, Copilot will show a diff (what it wants to add or change).
-3. **Read through each diff briefly** to see what was generated.
-4. Click **"Accept"** (or **"Apply"**) for each change to save it to the file.
-
-> **Tip:** If Copilot generates everything in one block instead of per-file diffs, you can manually copy each section into the correct file.
-
-##### Step 5a-6 — Verify Imports
-
-Open `app.py` and check that these imports are present near the top:
-
-```python
-from services.llm import generate_podcast_script
-from services.speech import synthesize_podcast
-```
-
-If they are missing, add them to the existing import lines for those modules.
-
----
-
-#### Option B — Using the GitHub Copilot CLI
-
-> **Prerequisite:** You need the **GitHub Copilot CLI** installed and authenticated.  See [GitHub Copilot in the CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli) for setup instructions.
-
-##### Step 5b-1 — Open a Terminal in the Project Folder
-
-1. Open your terminal (Command Prompt, PowerShell, or the VS Code integrated terminal).
-2. Navigate to the `document-advisor` project folder:
-   ```
-   cd path\to\document-advisor
-   ```
-
-##### Step 5b-2 — Copy the Prompt
-
-1. Open the file **`docs/podcast-generation-prompt.md`** in any text editor.
-2. Find the large text block inside the code fence.
-3. **Copy** the entire prompt text.
-
-##### Step 5b-3 — Start a Copilot CLI Chat Session
-
-1. In the terminal, type:
-   ```
-   ghcs
-   ```
-   This starts an interactive GitHub Copilot CLI chat session.
-
-2. **Paste the entire prompt** into the chat and press Enter.
-
-##### Step 5b-4 — Apply the Generated Code
-
-1. Copilot CLI will output the generated code for each file.
-2. **Copy each section** and paste it into the corresponding file:
-   - `generate_podcast_script()` → add to the bottom of `services/llm.py`
-   - `synthesize_podcast()` and `_assign_segments()` → add to the bottom of `services/speech.py`
-   - Session state, tab, and helper functions → add to the appropriate locations in `app.py`
-3. Make sure the imports are added to `app.py` (see Step 5a-6 above).
-
----
-
-#### Step 5-Final — Test the Podcast Feature
-
-Regardless of whether you used Option A or Option B:
-
-1. Make sure your virtual environment is active (see Part 6).
-2. Run the app:
-   ```
-   streamlit run app.py
-   ```
-3. In the browser, click the **🎙️ Podcasts** tab (next to Chat and Summary).
-4. Select a document from the dropdown (you must have uploaded at least one document in Exercise 2).
-5. Click **"🎙️ Generate Podcast"**.
-6. Wait for the progress bar to complete (this takes 30–90 seconds depending on document size):
-   - 📄 Fetching document chunks…
-   - ✍️ Generating podcast script…
-   - 🔊 Synthesizing audio with timing…
-   - ✅ Podcast ready!
-7. The audio player will appear with a transcript below it.
-8. Click **▶ Play** and watch the words highlight in yellow as the audio plays.
-9. Try the controls:
-   - **⏪ -10s / ⏩ +10s** to skip backward or forward.
-   - **Speed selector** to listen at 0.75x, 1.25x, 1.5x, or 2x.
-   - The transcript auto-scrolls to follow playback.
-10. Click **"🗑️ Clear podcast"** when you are done to reset.
-
-#### What Just Happened?
-
-You used **GitHub Copilot** — an AI coding assistant — to generate a complete, working feature from a text description.  Copilot produced:
-
-| Component | File | What It Does |
-|-----------|------|-------------|
-| `generate_podcast_script()` | `services/llm.py` | Sends document content to Azure OpenAI and gets back a podcast script as structured JSON segments |
-| `synthesize_podcast()` | `services/speech.py` | Converts the script into WAV audio using Azure Speech SDK with word-level timing |
-| `_assign_segments()` | `services/speech.py` | Maps each timed word back to its podcast segment for transcript highlighting |
-| Podcast tab UI | `app.py` | A full Streamlit UI with document selector, progress bar, audio player, and synchronised transcript |
-
-This is a powerful example of how AI-assisted coding lets you build complex features quickly — even if you have never written Python before.
-
-### Exercise 6: Change the Output Language (Optional, requires Translator key)
-
-1. In the sidebar, find **"🌐 Output Language"**.
-2. Click the dropdown and select **Hindi**, **French**, or **Telugu**.
-3. Ask your next question.  The answer will be in the selected language.
-4. Switch back to English at any time by selecting "English" from the dropdown.
-
-### Exercise 7: Use Voice Input (Optional, requires Speech credentials)
-
-1. In the Chat tab, you will see a **"🎤 Voice Input"** section with a microphone widget.
-2. Click the microphone button and speak your question clearly at a normal pace.
-3. Click the stop button when you are done speaking.
-4. The app will display: *"🗣️ Heard: [your transcribed question]"*
-5. The answer will be generated and spoken aloud automatically.
 
 ---
 
@@ -845,16 +543,6 @@ In the terminal where the app is running, press **Ctrl + C**.  The app will stop
 
 ---
 
-### Problem: Installation of `azure-cognitiveservices-speech` fails
-
-**Cause:** The Speech SDK requires C++ runtime components that may not be present on all systems.
-
-**Solution:** This is an optional package.  The app works without it.
-1. If you do not need voice features, delete the `azure-cognitiveservices-speech` line from `requirements.txt` and re-run `pip install -r requirements.txt`.
-2. Or simply ignore the error — the speech package is the last one and all other packages will install fine.
-
----
-
 ### Problem: "pip is not recognised" error on Windows
 
 **Cause:** Python was not added to PATH during installation.
@@ -871,29 +559,6 @@ In the terminal where the app is running, press **Ctrl + C**.  The app will stop
 **Cause:** Expected behaviour.  GPT-4.1 typically takes 5–15 seconds to generate an answer.
 
 **Solution:** No action needed.  The loading spinner tells you the app is working.
-
----
-
-### Problem: "Could not understand the audio"
-
-**Cause:** The audio was too quiet, too noisy, or the recording was too short.
-
-**Solution:**
-1. Make sure you are in a quiet environment.
-2. Speak louder and closer to the microphone.
-3. Speak a complete sentence, not just one word.
-4. Ensure your microphone is not muted.
-
----
-
-### Problem: Answers appear in English instead of the selected language
-
-**Cause:** `AZURE_TRANSLATOR_KEY` is not set in `.env`.
-
-**Solution:**
-1. Complete Step 3.5 to create an Azure Translator resource.
-2. Add the key and region to your `.env` file.
-3. Restart the app.
 
 ---
 
@@ -934,16 +599,8 @@ AZURE_SEARCH_INDEX_NAME=rag-documents
 AZURE_OPENAI_ENDPOINT=https://YOUR_RESOURCE_NAME.openai.azure.com/
 AZURE_OPENAI_KEY=YOUR_FOUNDRY_API_KEY_HERE
 AZURE_OPENAI_DEPLOYMENT=gpt-4.1
-AZURE_OPENAI_EMBEDDING_DEPLOYMENT=text-embedding-ada-002
+AZURE_OPENAI_EMBEDDING_DEPLOYMENT=text-embedding-3-large
 AZURE_OPENAI_API_VERSION=2025-03-01-preview
-
-# ── Azure Speech (optional — delete or comment out if not using) ──────────────
-AZURE_SPEECH_KEY=YOUR_SPEECH_KEY_HERE
-AZURE_SPEECH_REGION=eastus
-
-# ── Azure Translator (optional — delete or comment out if not using) ──────────
-AZURE_TRANSLATOR_KEY=YOUR_TRANSLATOR_KEY_HERE
-AZURE_TRANSLATOR_REGION=global
 ```
 
 ---
@@ -958,9 +615,7 @@ Use this checklist to make sure you have completed every step:
 - [ ] Azure AI Search resource created — URL and admin key saved
 - [ ] Microsoft Foundry project created — project endpoint and API key saved
 - [ ] GPT-4.1 model deployed via Foundry Model Catalog
-- [ ] text-embedding-ada-002 model deployed via Foundry Model Catalog
-- [ ] *(Optional)* Azure Speech resource created — key and region saved
-- [ ] *(Optional)* Azure Translator resource created — key and region saved
+- [ ] text-embedding-3-large model deployed via Foundry Model Catalog
 - [ ] Python 3.10+ installed with "Add to PATH" checked
 - [ ] Project folder downloaded/cloned
 - [ ] Virtual environment created with `python -m venv .venv`
@@ -971,7 +626,6 @@ Use this checklist to make sure you have completed every step:
 - [ ] Browser opened to http://localhost:8501
 - [ ] Test PDF uploaded successfully
 - [ ] First question answered with cited sources
-- [ ] *(Optional)* Foundry prompt agent created and tested in the Agents Playground
 
 ---
 
