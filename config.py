@@ -36,7 +36,6 @@ AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT", "gpt-4.1")
 AZURE_OPENAI_EMBEDDING_DEPLOYMENT = os.getenv(
     "AZURE_OPENAI_EMBEDDING_DEPLOYMENT", "text-embedding-ada-002"
 )
-AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2025-03-01-preview")
 
 # --------------- Azure Translator ---------------
 AZURE_TRANSLATOR_KEY = os.getenv("AZURE_TRANSLATOR_KEY", "")

@@ -11,32 +11,30 @@ This module contains the three LLM-facing functions used by the application:
   an entire document from all its indexed chunks.
 """
 
-from openai import AzureOpenAI
+from openai import OpenAI
 
 from config import (
     AZURE_OPENAI_ENDPOINT,
-    AZURE_OPENAI_KEY,
-    AZURE_OPENAI_API_VERSION,
+    AZURE_OPENAI_KEY,    
     AZURE_OPENAI_DEPLOYMENT,
 )
 
 
-def _get_client() -> AzureOpenAI:
-    """Create and return an authenticated AzureOpenAI client.
+def _get_client() -> OpenAI:
+    """Create and return an authenticated OpenAI client.
 
-    Constructs a new ``AzureOpenAI`` client using the endpoint, API key, and
-    API version defined in :mod:`config`.  A new client is created on every
+    Constructs a new ``OpenAI`` client using the endpoint, API key, and
+    deployment defined in :mod:`config`.  A new client is created on every
     call — this is intentional as the ``openai`` SDK clients are lightweight
     and stateless, and caching them at module level would complicate testing.
 
     Returns:
-        AzureOpenAI: A configured client ready to make chat completion and
+        OpenAI: A configured client ready to make chat completion and
             embedding requests against the Azure OpenAI resource.
     """
-    return AzureOpenAI(
-        azure_endpoint=AZURE_OPENAI_ENDPOINT,
+    return OpenAI(
+        base_url=AZURE_OPENAI_ENDPOINT,
         api_key=AZURE_OPENAI_KEY,
-        api_version=AZURE_OPENAI_API_VERSION,
     )
 
 
@@ -92,17 +90,16 @@ def generate_answer(
         f"Question: {query}\n\n"
         "Provide a comprehensive answer with citations referencing the source numbers and page numbers above."
     )
-
-    # 5. TODO: Uncomment below code to utilize LLM to generate answer to user queries
-    # response = client.chat.completions.create(
-    #     model=AZURE_OPENAI_DEPLOYMENT,
-    #     messages=[
-    #         {"role": "system", "content": system_prompt},
-    #         {"role": "user", "content": user_prompt},
-    #     ],
-    #     temperature=0.3,
-    #     max_tokens=1500,
-    # )
+    
+    response = client.chat.completions.create(
+        model=AZURE_OPENAI_DEPLOYMENT,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        temperature=0.3,
+        max_tokens=1500,
+    )
 
     english_answer = response.choices[0].message.content
     return english_answer
@@ -168,16 +165,15 @@ def generate_document_summary(
         "Provide a comprehensive summary of this entire document."
     )
 
-    # 6. TODO: Uncomment below code to generate summary of the document selected by user.
-    # response = client.chat.completions.create(
-    #     model=AZURE_OPENAI_DEPLOYMENT,
-    #     messages=[
-    #         {"role": "system", "content": system_prompt},
-    #         {"role": "user", "content": user_prompt},
-    #     ],
-    #     temperature=0.3,
-    #     max_tokens=3000,
-    # )
+    response = client.chat.completions.create(
+        model=AZURE_OPENAI_DEPLOYMENT,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        temperature=0.3,
+        max_tokens=3000,
+    )
 
     english_summary = response.choices[0].message.content
     return english_summary

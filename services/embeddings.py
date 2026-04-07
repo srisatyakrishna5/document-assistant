@@ -12,12 +12,11 @@ on the deployment).  The model name is controlled by the
 ``AZURE_OPENAI_EMBEDDING_DEPLOYMENT`` environment variable.
 """
 
-from openai import AzureOpenAI
+from openai import OpenAI
 
 from config import (
     AZURE_OPENAI_ENDPOINT,
-    AZURE_OPENAI_KEY,
-    AZURE_OPENAI_API_VERSION,
+    AZURE_OPENAI_KEY,    
     AZURE_OPENAI_EMBEDDING_DEPLOYMENT,
 )
 
@@ -25,7 +24,7 @@ from config import (
 def generate_embeddings(texts: list[str]) -> list[list[float]]:
     """Convert a batch of text strings into dense semantic embedding vectors.
 
-    Creates an ``AzureOpenAI`` client and calls the Embeddings API to convert
+    Creates an ``OpenAI`` client and calls the Embeddings API to convert
     every string in ``texts`` into a fixed-dimension floating-point vector.
     The order of the returned vectors matches the order of the input strings,
     so the caller can safely ``zip(texts, vectors)``.
@@ -58,11 +57,10 @@ def generate_embeddings(texts: list[str]) -> list[list[float]]:
         >>> len(vectors[0])       # dimensionality of the embedding model
         1536
     """
-    # TODO: Uncomment the code to enable embedding generation i.e. to convert text into floating-point numbers
-    # client = AzureOpenAI(
-    #     azure_endpoint=AZURE_OPENAI_ENDPOINT,
-    #     api_key=AZURE_OPENAI_KEY,
-    #     api_version=AZURE_OPENAI_API_VERSION,
+    # TODO 4: Uncomment the code to enable embedding generation i.e. to convert text into floating-point numbers
+    # client = OpenAI(
+    #     base_url=AZURE_OPENAI_ENDPOINT,
+    #     api_key=AZURE_OPENAI_KEY,    
     # )
     # response = client.embeddings.create(
     #     input=texts,
