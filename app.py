@@ -1,5 +1,5 @@
 """
-app.py — RAG Document Assistant — Streamlit application entry point.
+app.py — Document Advisor — Streamlit application entry point.
 
 This is the top-level module that wires together all backend services into a
 browser-based conversational UI.  It is launched with::
@@ -83,7 +83,7 @@ def main():
     5. **Main content rendering** — Renders the chat tab (history + input +
        RAG pipeline) and the summary tab.
     """
-    st.set_page_config(page_title="RAG Document Assistant", page_icon="📄", layout="wide")
+    st.set_page_config(page_title="Document Advisor", page_icon="📄", layout="wide")
 
     # --------------- Session state ---------------
     if "messages" not in st.session_state:
@@ -118,7 +118,7 @@ def main():
     # ================================================================
     # CENTER — Chat
     # ================================================================
-    st.title("💬 Document Assistant")
+    st.title("💬 Document Advisor")
 
     if st.session_state.indexed_docs:
         doc_names = ", ".join(d["name"] for d in st.session_state.indexed_docs)
