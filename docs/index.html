@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab Manual — Document Assistant</title>
+    <title>Lab Manual — Document Advisor</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
@@ -377,7 +377,7 @@
 <!-- Top Bar -->
 <header class="top-bar">
     <button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
-    <div class="logo">&#129514; Lab Manual <span>— RAG Document Assistant</span></div>
+    <div class="logo">&#129514; Lab Manual <span>— Document Advisor</span></div>
 </header>
 
 <!-- Sidebar -->
@@ -420,14 +420,14 @@
 <main class="content">
 
     <!-- ════════════════════════════ TITLE ════════════════════════════ -->
-    <h1 id="top"><span class="emoji">&#129514;</span> Lab Manual — RAG Document Assistant</h1>
+    <h1 id="top"><span class="emoji">&#129514;</span> Lab Manual — Document Advisor</h1>
     <p class="subtitle">Step-by-Step Setup Guide to experience Azure AI services</p>
 
     <hr>
 
     <!-- ════════════════════════════ WELCOME ════════════════════════════ -->
     <h2 id="welcome">Welcome</h2>
-    <p>This lab manual walks you through every single step needed to install and run the <strong>RAG Document Assistant</strong> on your personal computer — even if you have never written a line of code.</p>
+    <p>This lab manual walks you through every single step needed to install and run the <strong>Document Advisor</strong> on your personal computer — even if you have never written a line of code.</p>
     <p>By the end of this guide, you will have a working web application that lets you upload any PDF and ask questions about its contents in plain language.</p>
     <p><strong>What you will need:</strong></p>
     <ul>
@@ -487,7 +487,7 @@
         <li>Fill in:
             <ul>
                 <li><strong>Subscription:</strong> Select your subscription (usually "Azure subscription 1" for free accounts).</li>
-                <li><strong>Resource group name:</strong> Type <code>document-assistant-rg</code></li>
+                <li><strong>Resource group name:</strong> Type <code>document-advisor-rg</code></li>
                 <li><strong>Region:</strong> Select the region closest to you (e.g., East US, West Europe).</li>
             </ul>
         </li>
@@ -510,7 +510,7 @@
         <li>Fill in:
             <ul>
                 <li><strong>Subscription:</strong> Your subscription</li>
-                <li><strong>Resource group:</strong> <code>document-assistant-rg</code></li>
+                <li><strong>Resource group:</strong> <code>document-advisor-rg</code></li>
                 <li><strong>Region:</strong> Same region you chose earlier</li>
                 <li><strong>Name:</strong> Type a unique name, e.g., <code>doc-intel-yourname</code></li>
                 <li><strong>Pricing tier:</strong> Select <strong>"Free F0"</strong> (allows 500 pages/month free)</li>
@@ -537,7 +537,7 @@
         <li>Fill in:
             <ul>
                 <li><strong>Subscription:</strong> Your subscription</li>
-                <li><strong>Resource group:</strong> <code>document-assistant-rg</code></li>
+                <li><strong>Resource group:</strong> <code>document-advisor-rg</code></li>
                 <li><strong>Service name:</strong> Type a unique name, e.g., <code>search-yourname</code> (must be lowercase, no spaces)</li>
                 <li><strong>Location:</strong> Same region</li>
                 <li><strong>Pricing tier:</strong> Click "Change Pricing Tier" and select <strong>"Free"</strong></li>
@@ -585,12 +585,12 @@
     <ol>
         <li>In the upper-left corner of the portal, click the <strong>project name</strong> dropdown (it may say "Select a project" if this is your first time).</li>
         <li>Click <strong>"Create new project"</strong>.</li>
-        <li>Enter a <strong>project name</strong>, e.g., <code>document-assistant-project</code>.</li>
+        <li>Enter a <strong>project name</strong>, e.g., <code>document-advisor-project</code>.</li>
         <li><em>(Optional — Advanced options)</em> Click <strong>"Advanced options"</strong> if you want to customise:
             <ul>
                 <li><strong>Foundry resource:</strong> Enter a valid name for your AI Foundry resource (or let the portal auto-create one).</li>
                 <li><strong>Subscription:</strong> Your Azure subscription.</li>
-                <li><strong>Resource group:</strong> Select <code>document-assistant-rg</code> (the one you created in Step 2.3), or create/select a resource group.</li>
+                <li><strong>Resource group:</strong> Select <code>document-advisor-rg</code> (the one you created in Step 2.3), or create/select a resource group.</li>
                 <li><strong>Region:</strong> Select any of the <strong>AI Foundry recommended regions</strong> — <strong>"East US"</strong> or <strong>"East US 2"</strong> have the widest model availability.</li>
                 <li>The portal will automatically create a <strong>Foundry resource</strong> for you when you create the project. You do not need to create one separately.</li>
             </ul>
@@ -732,27 +732,27 @@
 
     <h3 id="step51">Step 5.1 — Download the Code</h3>
     <p><strong>If you have Git installed:</strong></p>
-    <pre><code>git clone https://github.com/srisatyakrishna5/document-assistant
-cd document-assistant</code></pre>
+    <pre><code>git clone https://github.com/srisatyakrishna5/document-advisor
+cd document-advisor</code></pre>
     <p><strong>If you do NOT have Git:</strong></p>
     <ol>
         <li>Go to the repository page in your browser.</li>
         <li>Click the green <strong>"Code"</strong> button → <strong>"Download ZIP"</strong>.</li>
-        <li>Extract the ZIP file to a convenient location (e.g., <code>C:\Users\YourName\document-assistant</code> on Windows, or <code>~/document-assistant</code> on macOS).</li>
+        <li>Extract the ZIP file to a convenient location (e.g., <code>C:\Users\YourName\document-advisor</code> on Windows, or <code>~/document-advisor</code> on macOS).</li>
     </ol>
 
     <h3 id="step52">Step 5.2 — Open a Terminal in the Project Folder</h3>
     <p><strong>Windows:</strong></p>
     <ol>
         <li>Open File Explorer.</li>
-        <li>Navigate to the <code>document-assistant</code> folder.</li>
+        <li>Navigate to the <code>document-advisor</code> folder.</li>
         <li>Hold <code>Shift</code> and right-click inside the folder (not on a file).</li>
         <li>Click <strong>"Open PowerShell window here"</strong> or <strong>"Open Command Prompt here"</strong>.</li>
     </ol>
     <p><strong>macOS:</strong></p>
     <ol>
         <li>Open Terminal.</li>
-        <li>Type <code>cd </code> (with a space after <code>cd</code>), then drag the <code>document-assistant</code> folder from Finder into the Terminal window. Press Enter.</li>
+        <li>Type <code>cd </code> (with a space after <code>cd</code>), then drag the <code>document-advisor</code> folder from Finder into the Terminal window. Press Enter.</li>
     </ol>
 
     <hr>
@@ -798,7 +798,7 @@ cd document-assistant</code></pre>
     <ol>
         <li>Open Notepad.</li>
         <li>Click <strong>File → Save As</strong>.</li>
-        <li>Navigate to the <code>document-assistant</code> folder.</li>
+        <li>Navigate to the <code>document-advisor</code> folder.</li>
         <li>In the "File name" box, type <code>.env</code> (including the dot).</li>
         <li>In "Save as type", select <strong>"All Files (*.*)"</strong>.</li>
         <li>Click <strong>Save</strong>.</li>
@@ -808,7 +808,7 @@ cd document-assistant</code></pre>
         <li>Open TextEdit.</li>
         <li>Click <strong>Format → Make Plain Text</strong>.</li>
         <li>Click <strong>File → Save</strong>.</li>
-        <li>Navigate to the <code>document-assistant</code> folder.</li>
+        <li>Navigate to the <code>document-advisor</code> folder.</li>
         <li>Name the file <code>.env</code> and click <strong>Save</strong>.</li>
     </ol>
 
@@ -986,7 +986,7 @@ AZURE_OPENAI_API_VERSION=API_VERSION_TO_BE_COPIED_FROM_GPT4.1_MODEL_DEPLOYMENT</
     <p>When you are done experimenting and want to stop any potential charges:</p>
     <ol>
         <li>Go to the Azure Portal → <strong>"Resource groups"</strong>.</li>
-        <li>Click on <code>document-assistant-rg</code>.</li>
+        <li>Click on <code>document-advisor-rg</code>.</li>
         <li>Click <strong>"Delete resource group"</strong> at the top.</li>
         <li>Type the resource group name to confirm, then click <strong>"Delete"</strong>.</li>
     </ol>
