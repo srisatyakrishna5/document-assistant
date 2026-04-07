@@ -887,10 +887,10 @@ AZURE_OPENAI_API_VERSION=API_VERSION_TO_BE_COPIED_FROM_GPT4.1_MODEL_DEPLOYMENT</
     <ol>
         <li>Open the project in your code editor and enable the ingestion pipeline by uncommenting each TODO block below:
             <ul>
-                <li><code>services/document_intelligence.py</code> → <strong>TODO 1</strong> (<code>analyze_pdf</code>)</li>
-                <li><code>services/search_index.py</code> → <strong>TODO 2</strong> (<code>ensure_search_index</code>)</li>
-                <li><code>services/search_index.py</code> → <strong>TODO 3</strong> (<code>upload_chunks_to_index</code>)</li>
-                <li><code>services/embeddings.py</code> → <strong>TODO</strong> (<code>generate_embeddings</code>)</li>
+                <li>In <code>services/document_intelligence.py</code> → <strong>TODO 1</strong> (line 51 to 59 in <code>analyze_pdf function</code>)</li>
+                <li>In <code>services/search_index.py</code> → <strong>TODO 2</strong> (line 100 to 108 in <code>ensure_search_index</code>)</li>
+                <li>In <code>services/search_index.py</code> → <strong>TODO 3</strong> (line 172 to 173 in <code>upload_chunks_to_index</code>)</li>
+                <li><code>services/embeddings.py</code> → <strong>TODO</strong> (line 60 to 67 in <code>generate_embeddings</code>)</li>
             </ul>
         </li>
         <li>Save all changed files.</li>
@@ -916,10 +916,7 @@ AZURE_OPENAI_API_VERSION=API_VERSION_TO_BE_COPIED_FROM_GPT4.1_MODEL_DEPLOYMENT</
 
     <!-- ── Exercise 3 ── -->
     <h3 id="ex3">Exercise 2: Ask Your First Question</h3>
-    <ol>
-        <li>Open <code>services/search.py</code> and uncomment <strong>TODO 4</strong> in <code>hybrid_search</code>.</li>
-        <li>Open <code>services/llm.py</code> and uncomment <strong>TODO 5</strong> in <code>generate_answer</code>.</li>
-        <li>Save both files.</li>
+    <ol>        
         <li>In the running app, click in the text box at the bottom that says <strong>"Ask a question about your documents…"</strong></li>
         <li>Type a question about the document you uploaded and press Enter. For example:
             <ul>
@@ -935,9 +932,7 @@ AZURE_OPENAI_API_VERSION=API_VERSION_TO_BE_COPIED_FROM_GPT4.1_MODEL_DEPLOYMENT</
 
     <!-- ── Exercise 4 ── -->
     <h3 id="ex4">Exercise 3: Generate a Document Summary</h3>
-    <ol>
-        <li>Open <code>services/llm.py</code> and uncomment <strong>TODO 6</strong> in <code>generate_document_summary</code>.</li>
-        <li>Save the file.</li>
+    <ol>        
         <li>Click the <strong>"&#128221; Summary"</strong> tab (next to the &#128172; Chat tab, at the top of the main area).</li>
         <li>Make sure your uploaded document is selected in the dropdown.</li>
         <li>Click <strong>"&#128221; Generate Summary"</strong>.</li>
