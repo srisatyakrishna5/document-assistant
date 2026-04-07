@@ -9,11 +9,6 @@ This module contains the three LLM-facing functions used by the application:
 
 - :func:`generate_document_summary` — Generates a comprehensive summary of
   an entire document from all its indexed chunks.
-
-All three functions produce output in English first, then delegate to
-:func:`~services.translation.translate_text` to translate into the user's
-selected language — this two-step approach keeps the LLM prompts in English
-(highest quality) while still supporting multilingual output.
 """
 
 from openai import AzureOpenAI
@@ -24,7 +19,6 @@ from config import (
     AZURE_OPENAI_API_VERSION,
     AZURE_OPENAI_DEPLOYMENT,
 )
-from services.translation import translate_text
 
 
 def _get_client() -> AzureOpenAI:
@@ -55,10 +49,6 @@ def generate_answer(
     as numbered context blocks (``[Source N - Page P]``) and instructs GPT-4.1
     to answer the question using only those sources.  The model is directed to
     cite sources explicitly so users can verify which pages support each claim.
-
-    After the English answer is returned by the model, it is passed to
-    :func:`~services.translation.translate_text` to convert it to the user's
-    selected output language.
 
     Args:
         query (str): The user's natural-language question as entered in the
@@ -103,18 +93,19 @@ def generate_answer(
         "Provide a comprehensive answer with citations referencing the source numbers and page numbers above."
     )
 
-    response = client.chat.completions.create(
-        model=AZURE_OPENAI_DEPLOYMENT,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        temperature=0.3,
-        max_tokens=1500,
-    )
+    # 5. TODO: Uncomment below code to utilize LLM to generate answer to user queries
+    # response = client.chat.completions.create(
+    #     model=AZURE_OPENAI_DEPLOYMENT,
+    #     messages=[
+    #         {"role": "system", "content": system_prompt},
+    #         {"role": "user", "content": user_prompt},
+    #     ],
+    #     temperature=0.3,
+    #     max_tokens=1500,
+    # )
 
     english_answer = response.choices[0].message.content
-    return translate_text(english_answer, language)
+    return english_answer
 
 
 def generate_document_summary(
@@ -177,15 +168,16 @@ def generate_document_summary(
         "Provide a comprehensive summary of this entire document."
     )
 
-    response = client.chat.completions.create(
-        model=AZURE_OPENAI_DEPLOYMENT,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        temperature=0.3,
-        max_tokens=3000,
-    )
+    # 6. TODO: Uncomment below code to generate summary of the document selected by user.
+    # response = client.chat.completions.create(
+    #     model=AZURE_OPENAI_DEPLOYMENT,
+    #     messages=[
+    #         {"role": "system", "content": system_prompt},
+    #         {"role": "user", "content": user_prompt},
+    #     ],
+    #     temperature=0.3,
+    #     max_tokens=3000,
+    # )
 
     english_summary = response.choices[0].message.content
-    return translate_text(english_summary, language)
+    return english_summary

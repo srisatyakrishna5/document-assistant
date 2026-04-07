@@ -47,15 +47,17 @@ def analyze_pdf(pdf_bytes: bytes) -> list[dict]:
         >>> pages[0]
         {'page_number': 1, 'content': 'Executive Summary\\nThis report covers...'}
     """
-    client = DocumentIntelligenceClient(
-        endpoint=DOC_INTELLIGENCE_ENDPOINT,
-        credential=AzureKeyCredential(DOC_INTELLIGENCE_KEY),
-    )
+    # 1. TODO: Uncomment the code to enable PDF analysis
+    # client = DocumentIntelligenceClient(
+    #     endpoint=DOC_INTELLIGENCE_ENDPOINT,
+    #     credential=AzureKeyCredential(DOC_INTELLIGENCE_KEY),
+    # )
 
-    poller = client.begin_analyze_document(
-        model_id="prebuilt-layout",
-        body=AnalyzeDocumentRequest(bytes_source=pdf_bytes),
-    )
+    # poller = client.begin_analyze_document(
+    #     model_id="prebuilt-layout",
+    #     body=AnalyzeDocumentRequest(bytes_source=pdf_bytes),
+    # )
+    
     result = poller.result()
 
     pages = []

@@ -95,12 +95,13 @@ def hybrid_search(query: str, top_k: int = 5) -> list[dict]:
         fields="content_vector",
     )
 
-    results = search_client.search(
-        search_text=query,
-        vector_queries=[vector_query],
-        top=top_k,
-        select=["id", "content", "page_number"],
-    )
+    # 4. TODO: Uncomment below code to query AI search to retrieve relevant content
+    # results = search_client.search(
+    #     search_text=query,
+    #     vector_queries=[vector_query],
+    #     top=top_k,
+    #     select=["id", "content", "page_number"],
+    # )
 
     return [
         {

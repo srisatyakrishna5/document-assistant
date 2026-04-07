@@ -464,39 +464,55 @@ The app will load and display the chat interface.
 
 ### Exercise 1: Upload Your First Document
 
-1. On the left side of the screen, you will see the **Document Manager** panel.
-2. Scroll down to "➕ Upload New Document".
-3. Click **"Browse files"** and select a PDF from your computer.
+1. Open the project in your code editor and enable the ingestion pipeline by uncommenting each TODO block below:
+   - `services/document_intelligence.py` → **TODO 1** (`analyze_pdf`)
+   - `services/search_index.py` → **TODO 2** (`ensure_search_index`)
+   - `services/search_index.py` → **TODO 3** (`upload_chunks_to_index`)
+   - `services/embeddings.py` → **TODO** (`generate_embeddings`)
+2. Save all changed files.
+3. In your terminal, run:
+
+```
+streamlit run app.py
+```
+
+4. In the app, open **Document Manager** and scroll to "➕ Upload New Document".
+5. Click **"Browse files"** and select a PDF from your computer.
    > If you do not have a PDF handy, search for a free PDF online (e.g., a product manual, a research paper abstract, or a public government report).
-4. Click the **"🚀 Analyze & Index"** button.
-5. Watch the progress bar:
+6. Click the **"🚀 Analyze & Index"** button.
+7. Watch the progress bar:
    - **10%** — Document Intelligence is reading your PDF.
    - A preview of the first few pages will appear in an expandable box.
    - **40%** — Text is being split into chunks.
    - **55%** — The search database is being created.
    - **70%** — Vectors (embeddings) are being generated and uploaded.
    - **100%** — Done!
-6. You should see a green banner: **"🎉 [Your filename] indexed successfully!"**
-7. The document name appears in the **"📚 Indexed Documents"** section of the sidebar.
+8. You should see a green banner: **"🎉 [Your filename] indexed successfully!"**
+9. The document name appears in the **"📚 Indexed Documents"** section of the sidebar.
 
 ### Exercise 2: Ask Your First Question
 
-1. Click in the text box at the bottom that says **"Ask a question about your documents…"**
-2. Type a question about the document you uploaded and press Enter.  For example:
+1. Open `services/search.py` and uncomment **TODO 4** in `hybrid_search`.
+2. Open `services/llm.py` and uncomment **TODO 5** in `generate_answer`.
+3. Save both files.
+4. In the running app, click in the text box at the bottom that says **"Ask a question about your documents…"**
+5. Type a question about the document you uploaded and press Enter.  For example:
    - *"What is this document about?"*
    - *"What are the main topics covered?"*
    - *"Summarise the key points."*
-3. Wait 3–10 seconds.  You will see a loading spinner.
-4. The answer will appear, followed by a **"📚 Sources & Citations"** section.
-5. Click "Sources & Citations" to expand it — you will see which pages the answer was taken from and the exact text the AI used.
+6. Wait 3–10 seconds.  You will see a loading spinner.
+7. The answer will appear, followed by a **"📚 Sources & Citations"** section.
+8. Click "Sources & Citations" to expand it — you will see which pages the answer was taken from and the exact text the AI used.
 
 ### Exercise 3: Generate a Document Summary
 
-1. Click the **"📝 Summary"** tab (next to the 💬 Chat tab, at the top of the main area).
-2. Make sure your uploaded document is selected in the dropdown.
-3. Click **"📝 Generate Summary"**.
-4. Wait 10–30 seconds (summaries take longer because the full document is processed).
-5. A structured summary with sections and page references will appear.
+1. Open `services/llm.py` and uncomment **TODO 6** in `generate_document_summary`.
+2. Save the file.
+3. Click the **"📝 Summary"** tab (next to the 💬 Chat tab, at the top of the main area).
+4. Make sure your uploaded document is selected in the dropdown.
+5. Click **"📝 Generate Summary"**.
+6. Wait 10–30 seconds (summaries take longer because the full document is processed).
+7. A structured summary with sections and page references will appear.
 
 ---
 

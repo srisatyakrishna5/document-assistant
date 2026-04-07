@@ -96,15 +96,16 @@ def ensure_search_index() -> None:
         ],
     )
 
-    index = SearchIndex(
-        name=SEARCH_INDEX_NAME,
-        fields=fields,
-        vector_search=vector_search,
-    )
+    # 2. TODO: Uncomment below code to provision search index with defined schema
+    # index = SearchIndex(
+    #     name=SEARCH_INDEX_NAME,
+    #     fields=fields,
+    #     vector_search=vector_search,
+    # )
 
-    existing = [idx.name for idx in index_client.list_indexes()]
-    if SEARCH_INDEX_NAME not in existing:
-        index_client.create_index(index)
+    # existing = [idx.name for idx in index_client.list_indexes()]
+    # if SEARCH_INDEX_NAME not in existing:
+    #     index_client.create_index(index)
 
 
 def upload_chunks_to_index(chunks: list[dict]) -> None:
@@ -167,5 +168,6 @@ def upload_chunks_to_index(chunks: list[dict]) -> None:
         for chunk, embedding in zip(chunks, all_embeddings)
     ]
 
-    for i in range(0, len(documents), 100):
-        search_client.upload_documents(documents=documents[i : i + 100])
+    # 3. TODO: Uncomment below code to upload document as chunks to the search index
+    # for i in range(0, len(documents), 100):
+    #     search_client.upload_documents(documents=documents[i : i + 100])

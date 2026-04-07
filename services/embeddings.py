@@ -58,13 +58,14 @@ def generate_embeddings(texts: list[str]) -> list[list[float]]:
         >>> len(vectors[0])       # dimensionality of the embedding model
         1536
     """
-    client = AzureOpenAI(
-        azure_endpoint=AZURE_OPENAI_ENDPOINT,
-        api_key=AZURE_OPENAI_KEY,
-        api_version=AZURE_OPENAI_API_VERSION,
-    )
-    response = client.embeddings.create(
-        input=texts,
-        model=AZURE_OPENAI_EMBEDDING_DEPLOYMENT,
-    )
+    # TODO: Uncomment the code to enable embedding generation i.e. to convert text into floating-point numbers
+    # client = AzureOpenAI(
+    #     azure_endpoint=AZURE_OPENAI_ENDPOINT,
+    #     api_key=AZURE_OPENAI_KEY,
+    #     api_version=AZURE_OPENAI_API_VERSION,
+    # )
+    # response = client.embeddings.create(
+    #     input=texts,
+    #     model=AZURE_OPENAI_EMBEDDING_DEPLOYMENT,
+    # )
     return [item.embedding for item in response.data]

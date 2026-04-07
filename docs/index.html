@@ -875,8 +875,20 @@ AZURE_OPENAI_API_VERSION=API_VERSION_TO_BE_COPIED_FROM_GPT4.1_MODEL_DEPLOYMENT</
     <!-- ── Exercise 2 ── -->
     <h3 id="ex2">Exercise 1: Upload Your First Document</h3>
     <ol>
-        <li>On the left side of the screen, you will see the <strong>Document Manager</strong> panel.</li>
-        <li>Scroll down to "&#10133; Upload New Document".</li>
+        <li>Open the project in your code editor and enable the ingestion pipeline by uncommenting each TODO block below:
+            <ul>
+                <li><code>services/document_intelligence.py</code> → <strong>TODO 1</strong> (<code>analyze_pdf</code>)</li>
+                <li><code>services/search_index.py</code> → <strong>TODO 2</strong> (<code>ensure_search_index</code>)</li>
+                <li><code>services/search_index.py</code> → <strong>TODO 3</strong> (<code>upload_chunks_to_index</code>)</li>
+                <li><code>services/embeddings.py</code> → <strong>TODO</strong> (<code>generate_embeddings</code>)</li>
+            </ul>
+        </li>
+        <li>Save all changed files.</li>
+        <li>In your terminal, run:</li>
+    </ol>
+    <pre><code>streamlit run app.py</code></pre>
+    <ol start="4">
+        <li>In the app, open <strong>Document Manager</strong> and scroll to "&#10133; Upload New Document".</li>
         <li>Click <strong>"Browse files"</strong> and select a PDF from your computer.
             <blockquote><p>If you do not have a PDF handy, search for a free PDF online (e.g., a product manual, a research paper abstract, or a public government report).</p></blockquote>
         </li>
@@ -895,7 +907,10 @@ AZURE_OPENAI_API_VERSION=API_VERSION_TO_BE_COPIED_FROM_GPT4.1_MODEL_DEPLOYMENT</
     <!-- ── Exercise 3 ── -->
     <h3 id="ex3">Exercise 2: Ask Your First Question</h3>
     <ol>
-        <li>Click in the text box at the bottom that says <strong>"Ask a question about your documents…"</strong></li>
+        <li>Open <code>services/search.py</code> and uncomment <strong>TODO 4</strong> in <code>hybrid_search</code>.</li>
+        <li>Open <code>services/llm.py</code> and uncomment <strong>TODO 5</strong> in <code>generate_answer</code>.</li>
+        <li>Save both files.</li>
+        <li>In the running app, click in the text box at the bottom that says <strong>"Ask a question about your documents…"</strong></li>
         <li>Type a question about the document you uploaded and press Enter. For example:
             <ul>
                 <li><em>"What is this document about?"</em></li>
@@ -911,6 +926,8 @@ AZURE_OPENAI_API_VERSION=API_VERSION_TO_BE_COPIED_FROM_GPT4.1_MODEL_DEPLOYMENT</
     <!-- ── Exercise 4 ── -->
     <h3 id="ex4">Exercise 3: Generate a Document Summary</h3>
     <ol>
+        <li>Open <code>services/llm.py</code> and uncomment <strong>TODO 6</strong> in <code>generate_document_summary</code>.</li>
+        <li>Save the file.</li>
         <li>Click the <strong>"&#128221; Summary"</strong> tab (next to the &#128172; Chat tab, at the top of the main area).</li>
         <li>Make sure your uploaded document is selected in the dropdown.</li>
         <li>Click <strong>"&#128221; Generate Summary"</strong>.</li>
