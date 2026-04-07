@@ -1,11 +1,11 @@
-# 🧪 Lab Manual — RAG Document Assistant
+# 🧪 Lab Manual — Document Advisor
 ### Step-by-Step Setup Guide for Non-Technical Users
 
 ---
 
 ## Welcome
 
-This lab manual walks you through every single step needed to install and run the **RAG Document Assistant** on your personal computer — even if you have never written a line of code.
+This lab manual walks you through every single step needed to install and run the **Document Advisor** on your personal computer — even if you have never written a line of code.
 
 By the end of this guide, you will have a working web application that lets you upload any PDF and ask questions about its contents in plain language.
 
@@ -581,7 +581,7 @@ This deletes ALL services created in this lab in one step.
 
 ```dotenv
 # ─────────────────────────────────────────────────────────────────────────────
-# RAG Document Assistant — Environment Configuration
+# Document Advisor— Environment Configuration
 # Copy this file to .env in the project root and fill in your Azure values.
 # NEVER commit .env to version control (Git).
 # ─────────────────────────────────────────────────────────────────────────────

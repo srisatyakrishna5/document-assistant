@@ -1,6 +1,6 @@
-# Document Assistant
+# Document Advisor
 
-Document Assistant is a Streamlit-based Retrieval Augmented Generation application for asking questions about PDF documents indexed in Azure AI Search.
+Document Advisor is a Streamlit-based Retrieval Augmented Generation application for asking questions about PDF documents indexed in Azure AI Search.
 
 The current application supports:
 
@@ -86,7 +86,7 @@ Selected document
 ## Repository structure
 
 ```text
-document-assistant/
+document-advisor/
 ├── app.py
 ├── config.py
 ├── LAB_MANUAL.md
@@ -157,7 +157,7 @@ Expected model deployments:
 
 ```bash
 git clone <repository-url>
-cd document-assistant
+cd document-advisor
 ```
 
 ### 2. Create and activate a virtual environment
